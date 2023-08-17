@@ -26,6 +26,8 @@ ReverbAlgorithm1AudioProcessor::ReverbAlgorithm1AudioProcessor()
 
 ReverbAlgorithm1AudioProcessor::~ReverbAlgorithm1AudioProcessor()
 {
+    delete leftDelay;
+    delete rightDelay;
 }
 
 //==============================================================================
@@ -95,6 +97,9 @@ void ReverbAlgorithm1AudioProcessor::prepareToPlay (double sampleRate, int sampl
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+    leftDelay = new Delay(0.1f, sampleRate);
+    rightDelay = new Delay(0.1f, sampleRate);
 }
 
 void ReverbAlgorithm1AudioProcessor::releaseResources()
@@ -150,11 +155,15 @@ void ReverbAlgorithm1AudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
+    if (leftDelay == nullptr || rightDelay == nullptr) return;
+
+    float* leftData = buffer.getWritePointer(0);
+    float* rightData = buffer.getWritePointer(1);
+
+    for (int i = 0; i < buffer.getNumSamples(); i++) {
+        leftData[i] = leftDelay->processSample(leftData[i]);
+        rightData[i] = rightDelay->processSample(rightData[i]);
     }
 }
 
