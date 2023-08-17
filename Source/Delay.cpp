@@ -32,8 +32,8 @@ float* Delay::processBuffer(const int bufferSize, const float* samples)
 
 float Delay::processSample(const float sample)
 {
-	delayBuffer[writeIndex] = sample;
-	writeIndex++;
-	writeIndex %= getDelayBufferSize();
-	return delayBuffer[writeIndex];
+	const int readIndex = (writeIndex + 1) % getDelayBufferSize();
+	delayBuffer[writeIndex] = sample + (delayBuffer[readIndex] * feedbackMultiplier);
+	writeIndex = readIndex;
+	return delayBuffer[readIndex];
 }

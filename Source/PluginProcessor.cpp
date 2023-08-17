@@ -98,8 +98,8 @@ void ReverbAlgorithm1AudioProcessor::prepareToPlay (double sampleRate, int sampl
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
-    leftDelay = new Delay(0.1f, sampleRate);
-    rightDelay = new Delay(0.1f, sampleRate);
+    leftDelay = new Delay(0.1f, sampleRate, 0.2f);
+    rightDelay = new Delay(0.1f, sampleRate, 0.2f);
 }
 
 void ReverbAlgorithm1AudioProcessor::releaseResources()
