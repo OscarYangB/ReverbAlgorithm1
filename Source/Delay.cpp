@@ -8,7 +8,7 @@ int Delay::getDelayBufferSize()
 
 Delay::~Delay()
 {
-	delete[] delayBuffer;
+	if (delayBuffer != nullptr) delete[] delayBuffer;
 }
 
 Delay::Delay(const float delaySeconds, const int sampleRate)
@@ -16,18 +16,6 @@ Delay::Delay(const float delaySeconds, const int sampleRate)
 	const float inSampleDelay = delaySeconds * sampleRate;
 	sampleDelay = round(inSampleDelay);
 	delayBuffer = new float[getDelayBufferSize()]();
-}
-
-float* Delay::processBuffer(const int bufferSize, const float* samples)
-{
-	float* returnBuffer = new float[bufferSize];
-
-	for (int i = 0; i < bufferSize; i++) {
-		float sample = samples[bufferSize];
-		returnBuffer[i] = processSample(sample);
-	}
-
-	return returnBuffer;
 }
 
 float Delay::processSample(const float sample)

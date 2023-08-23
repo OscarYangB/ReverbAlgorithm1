@@ -9,7 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Delay.h"
+#include "MultichannelDelay.h"
 
 //==============================================================================
 /**
@@ -61,6 +61,6 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbAlgorithm1AudioProcessor)
 
-    Delay* leftDelay = nullptr;
-    Delay* rightDelay = nullptr;
+    MultichannelDelay* leftDelay = nullptr;
+    MultichannelDelay* rightDelay = nullptr;
 };

@@ -16,7 +16,6 @@ public:
 		feedbackMultiplier = inFeedbackMultiplier;
 	};
 
-	float* processBuffer(const int bufferSize, const float* buffer);
 	float processSample(const float sample);
 };
 

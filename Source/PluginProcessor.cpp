@@ -98,8 +98,20 @@ void ReverbAlgorithm1AudioProcessor::prepareToPlay (double sampleRate, int sampl
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
-    leftDelay = new Delay(0.1f, sampleRate, 0.2f);
-    rightDelay = new Delay(0.1f, sampleRate, 0.2f);
+    const int numberOfChannels = 4;
+    float* leftDelayLengths = new float[numberOfChannels]();
+    float* rightDelayLengths = new float[numberOfChannels]();
+
+    for (int i = 0; i < numberOfChannels; i++) {
+        leftDelayLengths[i] = 0.2f * (i + 1);
+        rightDelayLengths[i] = (0.2f * (i + 1)) + 0.1f;
+    }
+
+    leftDelay = new MultichannelDelay(sampleRate, numberOfChannels, 0.0f, leftDelayLengths);
+    rightDelay = new MultichannelDelay(sampleRate, numberOfChannels, 0.0f, rightDelayLengths);
+
+    delete[] leftDelayLengths;
+    delete[] rightDelayLengths;
 }
 
 void ReverbAlgorithm1AudioProcessor::releaseResources()
@@ -140,21 +152,8 @@ void ReverbAlgorithm1AudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
 
     if (leftDelay == nullptr || rightDelay == nullptr) return;
 
@@ -162,8 +161,8 @@ void ReverbAlgorithm1AudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     float* rightData = buffer.getWritePointer(1);
 
     for (int i = 0; i < buffer.getNumSamples(); i++) {
-        leftData[i] = leftDelay->processSample(leftData[i]);
-        rightData[i] = rightDelay->processSample(rightData[i]);
+        leftData[i] = leftDelay->processSampleMultichannel(leftData[i]);
+        rightData[i] = rightDelay->processSampleMultichannel(rightData[i]);
     }
 }
 
