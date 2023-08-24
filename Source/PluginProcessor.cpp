@@ -99,21 +99,21 @@ void ReverbAlgorithm1AudioProcessor::prepareToPlay (double sampleRate, int sampl
     // initialisation that you need..
 
     std::vector leftDelayLengths{
+        0.05f,
         0.1f,
-        0.12f,
-        0.14f,
-        0.16f,
+        0.15f,
+        0.2f,
     };
 
     std::vector rightDelayLengths{
+        0.05f,
         0.1f,
-        0.13f,
         0.15f,
-        0.17f,
+        0.2f,
     };
 
-    leftDelay = new MultichannelDelay(sampleRate, 0.5f, leftDelayLengths);
-    rightDelay = new MultichannelDelay(sampleRate, 0.5f, rightDelayLengths);
+    leftDelay = new MultichannelDelay(sampleRate, 0.0f, 0.5f, leftDelayLengths);
+    rightDelay = new MultichannelDelay(sampleRate, 0.0f, 0.5f, rightDelayLengths);
 }
 
 void ReverbAlgorithm1AudioProcessor::releaseResources()

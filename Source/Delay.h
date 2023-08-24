@@ -5,6 +5,7 @@ class Delay
 {
 private:
 	int sampleDelay = 8;
+	int getNextWriteIndex();
 	int getDelayBufferSize();
 	std::vector<float> delayBuffer;
 	int writeIndex = 0;
@@ -18,5 +19,6 @@ public:
 	};
 
 	float processSample(const float sample);
+	void processFeedback(const float sample);
 };
 
