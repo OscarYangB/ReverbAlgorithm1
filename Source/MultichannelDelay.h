@@ -1,17 +1,16 @@
 #pragma once
 #include "Delay.h"
+#include <vector>
 
 class MultichannelDelay
 {
 private:
-	int numberOfChannels = 0;
-	Delay** delays = nullptr;
+	std::vector<Delay> delays;
 
 public:
-	~MultichannelDelay();
-	MultichannelDelay(const int sampleRate, const int inNumberOfChannels, const float feedbackMultiplier, const float* delayLengths);
-	MultichannelDelay() : MultichannelDelay(44100, 0, 0.0f, nullptr) {};
-	float processSampleMultichannel(float sample);
+	MultichannelDelay(const int sampleRate, const float feedbackMultiplier, const std::vector<float> delayLengths);
+	MultichannelDelay() : MultichannelDelay(44100, 0.0f, std::vector<float>{}) {};
+	float processSampleMultichannel(const float sample);
 	float processSample(const int channel, const float sample);
 	int getNumberOfChannels();
 };

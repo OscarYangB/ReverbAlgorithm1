@@ -98,20 +98,22 @@ void ReverbAlgorithm1AudioProcessor::prepareToPlay (double sampleRate, int sampl
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
-    const int numberOfChannels = 4;
-    float* leftDelayLengths = new float[numberOfChannels]();
-    float* rightDelayLengths = new float[numberOfChannels]();
+    std::vector leftDelayLengths{
+        0.1f,
+        0.12f,
+        0.14f,
+        0.16f,
+    };
 
-    for (int i = 0; i < numberOfChannels; i++) {
-        leftDelayLengths[i] = 0.2f * (i + 1);
-        rightDelayLengths[i] = (0.2f * (i + 1)) + 0.1f;
-    }
+    std::vector rightDelayLengths{
+        0.1f,
+        0.13f,
+        0.15f,
+        0.17f,
+    };
 
-    leftDelay = new MultichannelDelay(sampleRate, numberOfChannels, 0.0f, leftDelayLengths);
-    rightDelay = new MultichannelDelay(sampleRate, numberOfChannels, 0.0f, rightDelayLengths);
-
-    delete[] leftDelayLengths;
-    delete[] rightDelayLengths;
+    leftDelay = new MultichannelDelay(sampleRate, 0.5f, leftDelayLengths);
+    rightDelay = new MultichannelDelay(sampleRate, 0.5f, rightDelayLengths);
 }
 
 void ReverbAlgorithm1AudioProcessor::releaseResources()
