@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cmath>
 
 class MixingMatrices
 {
@@ -14,10 +15,10 @@ public:
 		return samples;
 	}
 
-	static float MixDown(std::vector<float> samples) {
+	static float MixDown(std::vector<float> samples, float scale = 1.0f) {
 		float sum = 0.0f;
 		for (int i = 0; i < samples.size(); ++i) {
-			sum += samples[i];
+			sum += samples[i] * scale;
 		}
 		return sum;
 	}
@@ -45,12 +46,14 @@ public:
 
 private:
 	static std::vector<float> HadamardRecursiveStep(std::vector<float> samples) {
-		if (samples.size() == 1) return samples;
+		if (samples.size() <= 1) return samples;
 
 		const int halfSize = samples.size() / 2;
 
-		std::vector<float> firstHalf = HadamardRecursiveStep(std::vector<float>(samples.begin(), samples.begin() + halfSize - 1));
-		std::vector<float> secondHalf = HadamardRecursiveStep(std::vector<float>(samples.begin() + halfSize, samples.end()));
+		std::vector<float> firstHalf = { samples.begin(), samples.begin() + (halfSize - 1) };
+		std::vector<float> secondHalf = { samples.begin() + halfSize, samples.end() };
+		HadamardRecursiveStep(firstHalf);
+		HadamardRecursiveStep(secondHalf);
 
 		for (int i = 0; i < halfSize; ++i) {
 			float fromFirstHalf = samples[i];

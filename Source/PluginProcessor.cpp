@@ -99,18 +99,25 @@ void ReverbAlgorithm1AudioProcessor::prepareToPlay (double sampleRate, int sampl
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
+    leftDiffusions.reserve(diffusionSteps);
+    rightDiffusions.reserve(diffusionSteps);
+    for (int i = 0; i < diffusionSteps; ++i) {
+        leftDiffusions.push_back(Diffusion(sampleRate, channels, startingDelayAmount * std::pow(2, i + 1)));
+        rightDiffusions.push_back(Diffusion(sampleRate, channels, startingDelayAmount * std::pow(2, i + 1)));
+    }
+
     std::vector leftDelayLengths{
         0.05f,
         0.1f,
         0.15f,
-        0.2f,
+        0.2f
     };
 
     std::vector rightDelayLengths{
         0.05f,
         0.1f,
         0.15f,
-        0.2f,
+        0.2f
     };
 
     leftDelay = new MultichannelDelay(sampleRate, 0.0f, 0.5f, leftDelayLengths);
@@ -164,8 +171,24 @@ void ReverbAlgorithm1AudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     float* rightData = buffer.getWritePointer(1);
 
     for (int i = 0; i < buffer.getNumSamples(); i++) {
-        leftData[i] = MixingMatrices::MixDown(leftDelay->processSampleMultichannel(leftData[i]));
-        rightData[i] = MixingMatrices::MixDown(rightDelay->processSampleMultichannel(rightData[i]));
+
+        std::vector<float> leftSamples(channels, leftData[i]);
+        std::vector<float> leftDiffusedSamples(channels, leftData[i]);
+        for (int j = 0; j < leftDiffusions.size(); ++j) {
+            leftDiffusedSamples = leftDiffusions[j].processSamples(leftSamples);
+        }
+
+        std::vector<float> rightSamples(channels, rightData[i]);
+        std::vector<float> rightDiffusedSamples(channels, leftData[i]);
+        for (int j = 0; j < rightDiffusions.size(); ++j) {
+            rightDiffusedSamples = rightDiffusions[j].processSamples(rightSamples);
+        }
+
+        leftData[i] = MixingMatrices::MixDown(leftDelay->processSamplesMultichannel(leftDiffusedSamples));
+        rightData[i] = MixingMatrices::MixDown(rightDelay->processSamplesMultichannel(rightDiffusedSamples));
+
+        //leftData[i] = MixingMatrices::MixDown(leftSamples);
+        //rightData[i] = MixingMatrices::MixDown(rightSamples);
     }
 }
 

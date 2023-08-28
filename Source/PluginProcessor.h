@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "MultichannelDelay.h"
+#include "Diffusion.h"
 
 //==============================================================================
 /**
@@ -60,6 +61,13 @@ public:
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbAlgorithm1AudioProcessor)
+
+    const int channels = 4;
+    const int diffusionSteps = 2;
+    const float startingDelayAmount = 0.02f;
+
+    std::vector<Diffusion> leftDiffusions;
+    std::vector<Diffusion> rightDiffusions;
 
     MultichannelDelay* leftDelay = nullptr;
     MultichannelDelay* rightDelay = nullptr;
