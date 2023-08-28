@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "MixingMatrices.h"
 
 //==============================================================================
 ReverbAlgorithm1AudioProcessor::ReverbAlgorithm1AudioProcessor()
@@ -163,8 +164,8 @@ void ReverbAlgorithm1AudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     float* rightData = buffer.getWritePointer(1);
 
     for (int i = 0; i < buffer.getNumSamples(); i++) {
-        leftData[i] = leftDelay->processSampleMultichannel(leftData[i]);
-        rightData[i] = rightDelay->processSampleMultichannel(rightData[i]);
+        leftData[i] = MixingMatrices::MixDown(leftDelay->processSampleMultichannel(leftData[i]));
+        rightData[i] = MixingMatrices::MixDown(rightDelay->processSampleMultichannel(rightData[i]));
     }
 }
 

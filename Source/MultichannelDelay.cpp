@@ -9,18 +9,25 @@ MultichannelDelay::MultichannelDelay(const int sampleRate, const float singlecha
 	for (int i = 0; i < delayLengths.size(); i++) delays.push_back(Delay(delayLengths[i], sampleRate, singlechannelFeedbackMultiplier));
 }
 
-float MultichannelDelay::processSampleMultichannel(const float sample)
+std::vector<float> MultichannelDelay::processSamplesMultichannel(const std::vector<float> samples)
 {
+	if (samples.size() != delays.size()) return std::vector<float>(delays.size(), 0.0f);
+
 	std::vector<float> processedChannels;
 	processedChannels.reserve(delays.size());
 
 	for (int i = 0; i < delays.size(); ++i) {
-		processedChannels.push_back(processSample(i, sample));
+		processedChannels.push_back(processSample(i, samples[i]));
 	}
 
 	processFeedback(processedChannels);
-	float result = MixingMatrices::MixDown(processedChannels);
-	return result;
+	return processedChannels;
+}
+
+std::vector<float> MultichannelDelay::processSampleMultichannel(const float sample)
+{
+	std::vector<float> samples(delays.size(), sample);
+	return processSamplesMultichannel(samples);
 }
 
 float MultichannelDelay::processSample(const int channel, const float sample)
