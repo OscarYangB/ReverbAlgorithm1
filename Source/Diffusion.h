@@ -11,7 +11,7 @@ private:
 
 public:
 	Diffusion(const int sampleRate, const int channels, const float delayAmount);
-	std::vector<float> processSamples(std::vector<float> samples);
+	void processSamples(std::vector<float>& samples);
 	int getNumberOfChannels();
 
 };

@@ -16,15 +16,14 @@ Diffusion::Diffusion(const int sampleRate, const int channels, const float delay
 	delay = MultichannelDelay(sampleRate, 0.0f, 0.0f, delayLengths);
 }
 
-std::vector<float> Diffusion::processSamples(std::vector<float> samples)
+void Diffusion::processSamples(std::vector<float>& samples)
 {
-	if (samples.size() != delay.getNumberOfChannels()) return samples;
+	if (samples.size() != delay.getNumberOfChannels()) return;
 
-	samples = delay.processSamplesMultichannel(samples);
-	//samples = MixingMatrices::Shuffle(samples, channelShuffles, flips);
-	//samples = MixingMatrices::Hadamard(samples);
-	samples = MixingMatrices::Householder(samples);
-	return samples;
+	delay.processSamplesMultichannel(samples);
+	// MixingMatrices::Shuffle(samples, channelShuffles, flips);
+	// MixingMatrices::Hadamard(samples);
+	//MixingMatrices::Householder(samples);
 }
 
 int Diffusion::getNumberOfChannels()

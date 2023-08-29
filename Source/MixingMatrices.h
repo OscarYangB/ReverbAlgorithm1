@@ -1,21 +1,22 @@
 #pragma once
 #include <vector>
 #include <cmath>
+#include <random>
+#include <algorithm>
 
 class MixingMatrices
 {
 public:
-	static std::vector<float> MixingMatrices::Householder(std::vector<float> samples) {
+	static void MixingMatrices::Householder(std::vector<float>& samples) {
 		const float multiplier = -2.0f / samples.size();
 		float sum = MixDown(samples);
 		sum *= multiplier;
 		for (int i = 0; i < samples.size(); ++i) {
 			samples[i] += sum;
 		}
-		return samples;
 	}
 
-	static float MixDown(std::vector<float> samples, float scale = 1.0f) {
+	static float MixDown(std::vector<float>& samples, float scale = 1.0f) {
 		float sum = 0.0f;
 		for (int i = 0; i < samples.size(); ++i) {
 			sum += samples[i] * scale;
@@ -23,45 +24,39 @@ public:
 		return sum;
 	}
 
-	static std::vector<float> Shuffle(std::vector<float> samples, std::vector<int> channelShuffles, std::vector<bool> flips) {
-		std::vector<float> result(samples.size(), 0.0f);
-		if (!(samples.size() == channelShuffles.size() && channelShuffles.size() == flips.size())) return result;
+	static void Shuffle(std::vector<float>& samples) {
+		auto rng = std::default_random_engine{};
+		std::shuffle(samples.begin(), samples.end(), rng);
 
 		for (int i = 0; i < samples.size(); ++i) {
-			int currentChannel = channelShuffles[i];
-			result[currentChannel] = flips[i] ? samples[i] * -1 : samples[i];
+			const bool flip = i % 2;
+			if (!flip) continue;
+			samples[i] *= -1;
 		}
-
-		return result;
 	}
 
-	static std::vector<float> Hadamard(std::vector<float> samples) {
-		std::vector<float> processedSamples = HadamardRecursiveStep(samples);
+	static void Hadamard(std::vector<float>& samples) {
+		HadamardRecursiveStep(samples, 0, samples.size() - 1);
 
 		float scalingFactor = std::sqrt(1.0f / samples.size());
 		for (int i = 0; i < samples.size(); ++i) samples[i] *= scalingFactor;
-
-		return samples;
 	}
 
 private:
-	static std::vector<float> HadamardRecursiveStep(std::vector<float> samples) {
-		if (samples.size() <= 1) return samples;
+	static void HadamardRecursiveStep(std::vector<float>& samples, const int start, const int end) {
+		const int size = (end - start) + 1;
+		if (size <= 1) return;
 
-		const int halfSize = samples.size() / 2;
+		const int halfSize = size / 2;
 
-		std::vector<float> firstHalf = { samples.begin(), samples.begin() + (halfSize - 1) };
-		std::vector<float> secondHalf = { samples.begin() + halfSize, samples.end() };
-		HadamardRecursiveStep(firstHalf);
-		HadamardRecursiveStep(secondHalf);
+		HadamardRecursiveStep(samples, start, start + halfSize - 1);
+		HadamardRecursiveStep(samples, start + halfSize, end);
 
-		for (int i = 0; i < halfSize; ++i) {
-			float fromFirstHalf = samples[i];
-			float fromSecondHalf = samples[i + halfSize];
+		for (int i = start; i < start + halfSize; ++i) {
+			const float fromFirstHalf = samples[i];
+			const float fromSecondHalf = samples[i + halfSize];
 			samples[i] = fromFirstHalf + fromSecondHalf;
 			samples[i + halfSize] = fromFirstHalf - fromSecondHalf;
 		}
-
-		return samples;
 	}
 };
