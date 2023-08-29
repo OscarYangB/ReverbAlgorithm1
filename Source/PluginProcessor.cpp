@@ -110,6 +110,9 @@ void ReverbAlgorithm1AudioProcessor::prepareToPlay (double sampleRate, int sampl
     std::vector rightDelayLengths{0.05f, 0.1f, 0.15f, 0.2f};
     leftDelay = new MultichannelDelay(sampleRate, 0.0f, 0.5f, leftDelayLengths);
     rightDelay = new MultichannelDelay(sampleRate, 0.0f, 0.5f, rightDelayLengths);
+
+    leftSamples.assign(channels, 0.0f);
+    rightSamples.assign(channels, 0.0f);
 }
 
 void ReverbAlgorithm1AudioProcessor::releaseResources()
@@ -160,13 +163,15 @@ void ReverbAlgorithm1AudioProcessor::processBlock (juce::AudioBuffer<float>& buf
 
     for (int i = 0; i < buffer.getNumSamples(); i++) {
 
-        std::vector<float> leftSamples(channels, leftData[i]);
+        for (int j = 0; j < channels; ++j) {
+            leftSamples[j] = leftData[i];
+            rightSamples[j] = rightData[i];
+        }
 
         for (int j = 0; j < leftDiffusions.size(); ++j) {
             leftDiffusions[j].processSamples(leftSamples);
         }
 
-        std::vector<float> rightSamples(channels, rightData[i]);
         for (int j = 0; j < rightDiffusions.size(); ++j) {
              rightDiffusions[j].processSamples(rightSamples);
         }
@@ -174,8 +179,8 @@ void ReverbAlgorithm1AudioProcessor::processBlock (juce::AudioBuffer<float>& buf
         leftDelay->processSamplesMultichannel(leftSamples);
         rightDelay->processSamplesMultichannel(rightSamples);
         
-        leftData[i] = MixingMatrices::MixDown(leftSamples);
-        rightData[i] = MixingMatrices::MixDown(rightSamples);
+        leftData[i] = leftSamples[0];
+        rightData[i] = rightSamples[0];
     }
 }
 

@@ -62,9 +62,12 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbAlgorithm1AudioProcessor)
 
+    std::vector<float> leftSamples;
+    std::vector<float> rightSamples;
+
     const int channels = 4;
-    const int diffusionSteps = 1;
-    const float startingDelayAmount = 0.02f;
+    const int diffusionSteps = 2;
+    const float startingDelayAmount = 0.01f;
 
     std::vector<Diffusion> leftDiffusions;
     std::vector<Diffusion> rightDiffusions;

@@ -23,7 +23,7 @@ void Diffusion::processSamples(std::vector<float>& samples)
 	delay.processSamplesMultichannel(samples);
 	// MixingMatrices::Shuffle(samples, channelShuffles, flips);
 	// MixingMatrices::Hadamard(samples);
-	//MixingMatrices::Householder(samples);
+	MixingMatrices::Householder(samples);
 }
 
 int Diffusion::getNumberOfChannels()
